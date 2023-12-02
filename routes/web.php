@@ -1,54 +1,49 @@
 <?php
 
+use App\Http\Controllers\AdminsController;
+
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DisciplineController;
-use App\Http\Controllers\ClassroomController;
-use App\Http\Controllers\LessonController;
-use App\Http\Controllers\ReservationController;
-use App\Http\Controllers\MembershipController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ExportController;
-use App\Http\Controllers\ApiController;
-use App\Http\Controllers\InformationController;
+use App\Http\Controllers\Auth\AuthController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 |
 | Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
 |
 */
 
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('classroom/pdf', [App\Http\Controllers\ClassroomController::class,'pdf'])->name('classroom.pdf');
-
-Route::resource('discipline', DisciplineController::class);
-Route::resource('classroom', ClassroomController::class);
-Route::resource('lesson', LessonController::class);
-Route::resource('reservation', ReservationController::class);
-Route::resource('membership', MembershipController::class);
-Route::resource('role', RoleController::class);
 
 
-Route::get('/exportar',[ExportController::class,'index'])->name('index');
-Route::get('/export',[ExportController::class,'export'])->name('export');
+Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get("/chars",[ApiController::class, "index"]);
-// mirar si se pone en api
+Route::resource('/admin', AdminsController::class);
 
 
-Auth::routes();
+Route::middleware(['admin'])->group(function () {
+    Route::get('admin', AdminsController::class);
+    #Route::get('member', MembersController::class);
+    #Route::get('disciplines', DisciplineController::class);
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    // Puedes agregar más rutas que requieran el mismo middleware aquí
+});
 
-Auth::routes();
+Route::middleware(['coach'])->group(function () {
+    Route::get('Disciplines', AdminsController::class);
+    #Route::get('member', [MembersController::class, 'index']);
+    #Route::get('disciplines', DisciplineController::class);
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+    // Puedes agregar más rutas que requieran el mismo middleware aquí
+});
 
-Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
