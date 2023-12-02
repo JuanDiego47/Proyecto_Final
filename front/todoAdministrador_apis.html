@@ -1,0 +1,139 @@
+
+<!-- version 2 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de administradores</title>
+</head>
+<body>
+
+    <button type="button" onclick="obtenerDatos()">Obtener Datos</button>
+    <form id="formulario">
+        <label >ingrese el id para el admin</label>
+        <input type="hidden" name="id" id="id_admin"> <!-- Campo oculto para el ID del libro -->
+        <label>Ingrese el nombre del administrador:</label>
+        <input type="text" name="name" id="admin_name">
+        <label>Ingrese el apellido:</label>
+        <input type="text" name="apellido" id="admin_lastname">
+        <label >ingrese el email</label>
+        <input type="text" name="correo admin" id="admin_email">
+        <label >ingrese el telefono</label>
+        <input type="text" name="telefono" id="admin_phone">
+        <label >ingrese el usuario</label>
+        <input type="text" name="usuario admin" id="admin_user">
+        <label >ingrese la password</label>
+        <input type="text" name="apellido" id="admin_password">
+        <button type="submit">Guardar Datos</button>
+    </form>
+
+    <table id="tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre del admin</th>
+                <th>apellido del admin</th>
+                <th>email del admin</th>
+                <th>telefono del admin</th>
+                <th>usuario del admin</th>
+              
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Las filas de la tabla se generan aquí -->
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('formulario').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('id_admin').value;
+            const name = document.getElementById('admin_name').value;
+            const admin_lastname = document.getElementById('admin_lastname').value;
+            const admin_email = document.getElementById('admin_email').value;
+            const admin_phone = document.getElementById('admin_phone').value;
+            const admin_user = document.getElementById('admin_user').value;
+            const admin_password = document.getElementById('admin_password').value;
+
+            const data = { id_admin, admin_name, admin_lastname,admin_email,admin_phone,admin_user,admin_password };
+            const method = id ? 'PUT' : 'POST';
+            const endPoint = id ? `http://localhost:8000/api/admin/${id}` : 'http://localhost:8000/api/admin';
+
+            fetch(endPoint, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                obtenerDatos(); // Recargar los datos
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        function obtenerDatos(){
+            const endPoint = "http://localhost:8000/api/admin";
+            const tabla = document.getElementById("tabla").getElementsByTagName('tbody')[0];
+            tabla.innerHTML = ''; // Limpiar la tabla antes de cargar datos
+
+            fetch(endPoint)
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(element => {
+                    const row = tabla.insertRow();
+                    row.innerHTML = `
+                        <td>${element.id_admin}</td>
+                        <td>${element.admin_name}</td>
+                        <td>${element.admin_lastname}</td>
+                        <td>${element.admin_email}</td>
+                        <td>${element.admin_phone}</td>
+                        <td>${element.admin_user}</td>
+                        <td>
+                            <button onclick="editar(${element.id})">Editar</button>
+                            <button onclick="borrar(${element.id})">Borrar</button>
+                        </td>
+                    `;
+                });
+            });
+        }
+
+        function editar(id) {
+            const endPoint = `http://localhost:8000/api/admin/${id}`;
+            fetch(endPoint)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('id_admin').value = data.id_admin;
+                document.getElementById('admin_name').value = data.admin_name;
+                document.getElementById('admin_lastname').value = data.admin_lastname;
+                document.getElementById('admin_lastname').value = data.admin_email;
+                document.getElementById('admin_lastname').value = data.admin_phone;
+                document.getElementById('admin_lastname').value = data.admin_user;
+                document.getElementById('admin_lastname').value = data.admin_password;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function borrar(id) {
+            const endPoint = `http://localhost:8000/api/admin/${id}`;
+            fetch(endPoint, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Deleted:', data);
+                obtenerDatos(); // Recargar los datos
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
